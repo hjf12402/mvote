@@ -1,0 +1,191 @@
+<!-- poll.html -->
+{% extends 'base.html' %}
+{% block title %}{{ poll.name }}{% endblock %} }}
+{% block content %}
+  <style>
+  button{
+    width: 100%;
+    height: 50px;
+  }
+.myButton1 {
+	-moz-box-shadow:inset 0px 1px 0px 0px #cf866c;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #cf866c;
+	box-shadow:inset 0px 1px 0px 0px #cf866c;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #d0451b), color-stop(1, #bc3315));
+	background:-moz-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-webkit-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-o-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:-ms-linear-gradient(top, #d0451b 5%, #bc3315 100%);
+	background:linear-gradient(to bottom, #d0451b 5%, #bc3315 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#d0451b', endColorstr='#bc3315',GradientType=0);
+	background-color:#d0451b;
+	border:1px solid #942911;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:12px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #854629;
+}
+.myButton1:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bc3315), color-stop(1, #d0451b));
+	background:-moz-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-webkit-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-o-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:-ms-linear-gradient(top, #bc3315 5%, #d0451b 100%);
+	background:linear-gradient(to bottom, #bc3315 5%, #d0451b 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bc3315', endColorstr='#d0451b',GradientType=0);
+	background-color:#bc3315;
+}
+.myButton1:active {
+	position:relative;
+	top:1px;
+}
+.myButton2 {
+	-moz-box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #007dc1), color-stop(1, #0061a7));
+	background:-moz-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-webkit-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-o-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-ms-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#007dc1', endColorstr='#0061a7',GradientType=0);
+	background-color:#007dc1;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #124d77;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #154682;
+}
+.myButton2:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #0061a7), color-stop(1, #007dc1));
+	background:-moz-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-webkit-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-o-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-ms-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:linear-gradient(to bottom, #0061a7 5%, #007dc1 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0061a7', endColorstr='#007dc1',GradientType=0);
+	background-color:#0061a7;
+}
+.myButton2:active {
+	position:relative;
+	top:1px;
+}
+
+
+  </style>
+  <script>
+  $(document).ready(function(){
+      {% for pollitem in pollitems %}
+      $("#govote-{{ pollitem.id }}").click(function () {
+          var pollitemid = $("#govote-{{ pollitem.id }}").data('itemid');
+          $.ajax({
+              type:"GET",
+              url:"/govote/",
+              data:{
+                  "pollitemid": pollitemid,
+                  "pollid": {{ poll.id }},
+              },
+              success:function (data) {
+                  data = JSON.parse(data);
+
+                  if(data['bypass']==1){
+                      alert("今天你已为该项目投过票");
+                  }else{
+                      $("#pollitem-id-{{pollitem.id }}").html(data['votes']);
+                  }
+              }
+          });
+      });
+      {% endfor %}
+  });
+  </script>
+  <script>
+    function delete_item(id) {
+      if(confirm('是否确认删除该选项')){
+      var post_data = {
+          'pollitemid': id,
+      };
+      $.ajax({
+          url: {% url 'delete-item' %},
+          type: "GET",
+          data: post_data,
+          success: function (url){
+              $("#pollitems").load(url);
+          }
+      })
+      }
+
+    }
+  </script>
+<div class="container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tag }}" align="center">
+    <h4>{{ message }}</h4>
+  </div>
+  {% endfor %}
+  <div class="panel panel-default">
+    <div class="panel-heading" align="center">
+      <h3>{{ poll.name }}</h3>
+    </div>
+  </div>
+  <div class="row" id="pollitems">
+    {% for pollitem in pollitems %}
+    <div class="col-md-3 col-xs-6">
+      <div class="panel panel-primary">
+      <div class="panel-heading" align="center">
+        <div class="row">
+          <span>
+            <div class="col-md-6" align="left">
+              <h4><strong>{{ pollitem.name }}</strong></h4>
+            </div>
+            <div class="col-md-6" align="right">
+              <h5>当前票数：<span id="pollitem-id-{{ pollitem.id }}">{{ pollitem.vote }}</span></h5>
+            </div>
+          </span>
+
+        </div>
+      </div>
+      <div class="panel-body" align="center">
+        {% if pollitem.image_url %}
+        <img src="{{ pollitem.img_url }}" width="200px">
+        {% else %}
+        <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=639470133,2434694235&fm=26&gp=0.jpg" width="200px">
+        {% endif %}
+      </div>
+      <div class="row">
+        <div class="col-md-6" style="padding-right:0px">
+          <button class="panel-footer myButton2" width="100%" id="govote-{{ pollitem.id }}" data-itemid="{{ pollitem.id }}">投这个一票</button>
+        </div>
+        <div class="col-md-6" style="padding-left:0px">
+          <button class="panel-footer myButton1" onclick="delete_item({{ pollitem.id }})">删除</button>
+        </div>
+      </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if request.user == poll.user %}
+    <div class="row" align="center">
+      <dv class="col-md-5"></dv>
+      <div class="col-md-2">
+        <a href="/additem/{{ poll.id }}">
+          <button class="btn btn-primary">新增投票选项</button>
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

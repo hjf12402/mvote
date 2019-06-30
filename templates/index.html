@@ -1,0 +1,75 @@
+<!-- index.html -->
+{% extends 'base.html' %}
+{% block title %}投票王v1.0  作者：hjf{% endblock %}
+{% block content %}
+{% load account %}
+{% load mvote_extras %}
+<script>
+function fun1(){
+  alert('请先登录');
+}
+</script>
+<div class="container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tag }}" align="center">
+    <h4>{{ message }}</h4>
+  </div>
+  {% endfor %}
+  <div class="panel panel-default">
+    <div class="panel-heading" align="center">
+      <h3>欢迎来到投票王，我是作者hjf</h3>
+      {% if user.is_authenticated %}
+      <p>{% if time.hour < 12 %}早上{% elif time.hour < 18 %}下午{% else %}晚上{% endif %}好，{{ user.username }}，现在是{{ time | date:'Y/m/d,H:i:s' }}</p>
+      {% else %}
+      <p>欢迎使用微信<a href="{% url 'account_login' %}">登录</a>或<a href="{% url 'account_signup' %}">注册</a>你的账号，以拥有投票和制作投票的功能</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <button class="btn btn-info">
+      目前是第{{ polls.number }}页
+    </button>
+    {% if polls.has_previous %}
+    <button class="btn btn-info">
+      <a href="?p={{ polls.previous_page_number }}">上一页</a>
+    </button>
+    {% endif %}
+    {% if polls.has_next %}
+    <button class="btn btn-info">
+      <a href="?p={{ polls.next_page_number }}">下一页</a>
+    </button>
+    {% endif %}
+  </div>
+  <div class="row">
+  <div class="list-group">
+    {% for poll in polls %}
+      <div class="list-group-item">
+      <div class="row">
+      <div class="col-md-8">
+      {% if user.is_authenticated %}
+        <a href="{% url 'poll-url' poll.id %}"><pre><span class="glyphicon glyphicon-check"></span>&nbsp;{{ poll.name }}, added by 【{{ user.username }}】, created at {{ poll.created_at | date:'Y年m月d日，H时i分s秒' }}</pre></a>
+      {% else %}
+      <a href="#" onclick="fun1()"><pre>{{ poll.name }}, added by 【{{ user.username }}】, created at {{ poll.created_at | date:'Y年m月d日，H时i分s秒' }}</pre></a>
+      {% endif %}
+      </div>
+      <div class="col-md-4">
+        <pre>总票数：{{ poll.id | show_votes }}&nbsp;&nbsp;&nbsp;项数：{{ poll.id | show_items }}</pre>
+      </div>
+      </div>
+      </div>
+    {% endfor %}
+  </div>
+  </div>
+
+<br/>
+<div class="row">
+  <div class="col-md-8"></div>
+  <div class="col-md-4" align="center">
+    <a href="add_poll/">
+    <button class="btn btn-primary" id="add_poll">发起投票项目</button>
+    </a>
+  </div>
+</div>
+</div>
+{% endblock %}
